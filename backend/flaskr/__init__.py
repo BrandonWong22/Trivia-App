@@ -71,20 +71,24 @@ def create_app(test_config=None):
     Clicking on the page numbers should update the questions. 
     '''
   
-    selection = Question.query.order_by(Question.id).all()
-    current_questions = paginate_questions(request, selection)
-    categories = {category.id: category.type for category in Category.query.all()}
+    try:
+      selection = Question.query.order_by(Question.id).all()
+      current_questions = paginate_questions(request, selection)
+      categories = {category.id: category.type for category in Category.query.all()}
 
-    if len(current_questions) == 0:
-      abort(404)
+      if len(current_questions) == 0:
+        abort(404)
 
-    return jsonify({
-      'success': True, 
-      'question': current_questions,
-      'total_questions': len(Question.query.all()), 
-      'categories': categories, 
-      'current_category': None
-    })
+      return jsonify({
+        'success': True, 
+        'question': current_questions,
+        'total_questions': len(Question.query.all()), 
+        'categories': categories, 
+        'current_category': None
+      })
+
+    except: 
+      abort(422)
 
 
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
@@ -206,36 +210,47 @@ def create_app(test_config=None):
     except:
       abort(422)
     
-  @app.route('/quizzes', methods=['POST'])
-  def get_questions_play_quiz()
-    '''
-    @TODO: 
-    Create a POST endpoint to get questions to play the quiz. 
-    This endpoint should take category and previous question parameters 
-    and return a random questions within the given category, 
-    if provided, and that is not one of the previous questions. 
+  # @app.route('/quizzes', methods=['POST'])
+  # def get_questions_play_quiz()
+  #   '''
+  #   @TODO: 
+  #   Create a POST endpoint to get questions to play the quiz. 
+  #   This endpoint should take category and previous question parameters 
+  #   and return a random questions within the given category, 
+  #   if provided, and that is not one of the previous questions. 
 
-    TEST: In the "Play" tab, after a user selects "All" or a category,
-    one question at a time is displayed, the user is allowed to answer
-    and shown whether they were correct or not. 
-    '''
-    body = request.json()
+  #   TEST: In the "Play" tab, after a user selects "All" or a category,
+  #   one question at a time is displayed, the user is allowed to answer
+  #   and shown whether they were correct or not. 
+  #   '''
+  #   body = request.json()
 
-    get_category = body.get('get_category', None)
-    prv_questions = body.get('prv_questions', None)
+  #   get_category = body.get('get_category', None)
+  #   prv_questions = body.get('prv_questions', None)
 
-    category_id = int(quiz_category['id'])
-
-    
+  #   category_id = int(quiz_category['id'])
 
 
+  # '''
+  # @TODO: 
+  # Create error handlers for all expected errors 
+  # including 404 and 422. 
+  # '''
+  # @app.errorhandler(404)
+  # def not_found(error): 
+  #   return jsonify({
+  #     'success': False, 
+  #     'error': 404 
+  #     'message': 'resource not found'
+  #   }), 404 
 
-
-  '''
-  @TODO: 
-  Create error handlers for all expected errors 
-  including 404 and 422. 
-  '''
+  # @app.errorhandler(422)
+  # def unprocessable(error): 
+  #   return jsonify({
+  #     'success': False,
+  #     'error': 422, 
+  #     'message': 'unprocessable'
+  #   }), 422
   
   return app
 
