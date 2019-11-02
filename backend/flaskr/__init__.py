@@ -241,7 +241,8 @@ def create_app(test_config=None):
   #   get_category = body.get('get_category', None)
   #   prv_questions = body.get('prv_questions', None)
 
-  #   category_id = int(quiz_category['id'])
+  #   questions = Question.query.all()
+  #   if int(get_category('id')) == 
 
 
   '''
