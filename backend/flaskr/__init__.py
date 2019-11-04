@@ -3,6 +3,8 @@ from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
+import math
+import json
 
 from models import setup_db, Question, Category
 
@@ -38,7 +40,7 @@ def create_app(test_config=None):
     return response
 
   @app.route('/categories')
-  def retrieve_categories(): 
+  def get_categories(): 
     '''
     @TODO: 
     Create an endpoint to handle GET requests 
@@ -119,18 +121,6 @@ def create_app(test_config=None):
 
     except: 
       abort(422)
-
-  # @app.route("/questions/<question_id>", methods=['DELETE'])
-  # def delete_question(question_id):
-  #     question_data = Question.query.get(question_id)
-  #     if question_data:
-  #         Question.delete(question_data)
-  #         result = {
-  #             "success": True,
-  #         }
-  #         return jsonify(result)
-  #     abort(404)
-
   
   @app.route('/questions', methods=['POST'])
   def create_questions():
@@ -183,7 +173,7 @@ def create_app(test_config=None):
     try:
       body = request.get_json()
 
-      search = body.get('search', None)
+      search = body.get('searchTerm', None)
       selection = Question.query.order_by(Question.id).filter(Question.question.ilike('%{}%'.format(search)))
       current_questions = paginate_questions(request, selection)
 
@@ -222,27 +212,63 @@ def create_app(test_config=None):
 
     except:
       abort(422)
+
+    def get_random_question(): 
+      max_id = len(Question.query.all()) - 1
+      random_id = random.randint(0, max_id)
+      random_question = Question.query.get(random_id)
+
+      if random_question is None:
+        return get_random_question()
+
+      return random_question.format
+
+
+    def get_random_question_from_category(category, prv_questions): 
+      questions_from_category = Question.query.filter_by(category==category['id']).all()
+      formatted_questions = [question.format for question in questions_from_category]
+      random_question_index = random.randint(0, (len(formatted_questions) - 1))
+      random_question = formatted_questions[random_question_index]
+
+      for question in prv_questions:
+        if question == random_question['id']:
+          return get_random_queston_by_category(category, prv_questions)
+      return random_question
     
-  # @app.route('/quizzes', methods=['POST'])
-  # def get_questions_play_quiz()
-  #   '''
-  #   @TODO: 
-  #   Create a POST endpoint to get questions to play the quiz. 
-  #   This endpoint should take category and previous question parameters 
-  #   and return a random questions within the given category, 
-  #   if provided, and that is not one of the previous questions. 
+  @app.route('/quizzes', methods=['POST'])
+  def get_questions_play_quiz():
+    '''
+    @TODO: 
+    Create a POST endpoint to get questions to play the quiz. 
+    This endpoint should take category and previous question parameters 
+    and return a random questions within the given category, 
+    if provided, and that is not one of the previous questions. 
 
-  #   TEST: In the "Play" tab, after a user selects "All" or a category,
-  #   one question at a time is displayed, the user is allowed to answer
-  #   and shown whether they were correct or not. 
-  #   '''
-  #   body = request.json()
+    TEST: In the "Play" tab, after a user selects "All" or a category,
+    one question at a time is displayed, the user is allowed to answer
+    and shown whether they were correct or not. 
+    '''
+    body = request.get_json()
 
-  #   get_category = body.get('get_category', None)
-  #   prv_questions = body.get('prv_questions', None)
+    quiz_category = body.get('get_category', None)
+    prv_questions = body.get('prv_questions', None)
+    current_question = {}
 
-  #   questions = Question.query.all()
-  #   if int(get_category('id')) == 
+    category_id = int(quiz_category['id'])
+
+    if category_id > 0: #A category has been selected
+      current_question = get_random_question_from_category(quiz_category, prv_questions)
+
+    else: #ALL has been selected
+      current_question = get_random_question()
+      for question in prv_questions:
+        if question == current_question['id']:
+          return get_quiz_question()
+
+    return jsonify({
+      'success': True,
+      'question': current_question
+    })
 
 
   '''

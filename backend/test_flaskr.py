@@ -117,18 +117,18 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'method not allowed')
 
+    def test_search_question(self):
+        post_data = {
+            'searchTerm': 'title',
+        }
+        res = self.client().post('/searchQuestions', json=post_data)
+        data = json.loads(res.data)
 
-    # def test_search_question(self):
-    #     post_data = {
-    #         'searchTerm': 'a',
-    #     }
-    #     res = self.client().post('/searchQuestions', json=post_data)
-    #     data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data["success"], True)
+        self.assertTrue(data["total_questions"])
+        self.assertTrue(len(data["questions"]))
 
-    #     self.assertEqual(res.status_code, 200)
-    #     self.assertEqual(data["success"], True)
-    #     self.assertTrue(data["total_questions"])
-    #     self.assertTrue(len(data["questions"]))
 
     def test_get_question_by_category(self): 
         res = self.client().get('/categories/1/questions')
@@ -149,6 +149,20 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data['message'], 'unprocessable')
 
+    def test_post_play_quiz(self):
+        post_data = {
+            'previous_questions': [],
+            'quiz_category': {
+                'type': 'Science',
+                'id': 1
+            }
+        }
+        res = self.client().post('/quizzes', json=post_data)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data["success"], True)
+        self.assertTrue(data["question"])
 
 
 # Make the tests conveniently executable
