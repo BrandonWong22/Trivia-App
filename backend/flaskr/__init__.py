@@ -95,14 +95,12 @@ def create_app(test_config=None):
       'success': True, 
       'questions': current_questions,
       'total_questions': len(Question.query.all()), 
-      'categories': [], 
-      'current_category': None
+      'categories': categories, 
+      #'current_category': None
     })
 
     # except: 
     #   abort(404)
-
-
 
 
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
@@ -225,28 +223,28 @@ def create_app(test_config=None):
     except:
       abort(422)
 
-    def get_random_question(): 
-      max_id = len(Question.query.all()) - 1
-      random_id = random.randint(0, max_id)
-      random_question = Question.query.get(random_id)
+  def get_random_question(): 
+    max_id = len(Question.query.all()) - 1
+    random_id = random.randint(0, max_id)
+    random_question = Question.query.get(random_id)
 
-      if random_question is None:
-        return get_random_question()
+    if random_question is None:
+      return get_random_question()
 
-      return random_question.format
+    return random_question.format()
 
 
-    def get_random_question_from_category(category, prv_questions): 
-      questions_from_category = Question.query.filter_by(category==category['id']).all()
-      formatted_questions = [question.format for question in questions_from_category]
-      random_question_index = random.randint(0, (len(formatted_questions) - 1))
-      random_question = formatted_questions[random_question_index]
+  def get_random_question_from_category(category, previous_questions): 
+    questions_from_category = Question.query.filter_by(category=category['id']).all()
+    formatted_questions = [question.format() for question in questions_from_category]
+    random_question_index = random.randint(0, (len(formatted_questions) - 1))
+    random_question = formatted_questions[random_question_index]
 
-      for question in prv_questions:
-        if question == random_question['id']:
-          return get_random_queston_by_category(category, prv_questions)
-      return random_question
-    
+    for question in previous_questions:
+      if question == random_question['id']:
+        return get_random_question_from_category(category, previous_questions)
+    return random_question
+  
   @app.route('/quizzes', methods=['POST'])
   def get_questions_play_quiz():
     '''
@@ -262,20 +260,20 @@ def create_app(test_config=None):
     '''
     body = request.get_json()
 
-    quiz_category = body.get('get_category', None)
-    prv_questions = body.get('prv_questions', None)
+    previous_questions = body.get('previous_questions', None)
+    quiz_category = body.get('quiz_category', None)
     current_question = {}
 
     category_id = int(quiz_category['id'])
 
     if category_id > 0: #A category has been selected
-      current_question = get_random_question_from_category(quiz_category, prv_questions)
+      current_question = get_random_question_from_category(quiz_category, previous_questions)
 
     else: #ALL has been selected
       current_question = get_random_question()
-      for question in prv_questions:
+      for question in previous_questions:
         if question == current_question['id']:
-          return get_quiz_question()
+          return get_random_question()
 
     return jsonify({
       'success': True,

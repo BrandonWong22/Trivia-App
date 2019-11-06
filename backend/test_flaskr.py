@@ -141,7 +141,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['questions']), 3)
         self.assertEqual(data['total_questions'], len(Question.query.all()))
 
-    def test_404_search_invalid_category(self): 
+    def test_422_search_invalid_category(self): 
         res = self.client().get('/categories/1000/questions')
         data = json.loads(res.data)
 
