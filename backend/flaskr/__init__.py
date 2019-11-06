@@ -58,16 +58,6 @@ def create_app(test_config=None):
       'categories': formatted_categories,
       'total_categories': len(Category.query.all())})
 
-  # @app.route('/categories')
-  # def get_categories():
-  #   categories = Category.query.order_by(Category.id).all()
-  #   return jsonify({
-  #     'success': True,
-  #     'categories': [
-  #       category.format for category in categories
-  #     ]
-  #   })
-
   @app.route('/questions')
   def get_questions():
     '''
@@ -83,7 +73,6 @@ def create_app(test_config=None):
     Clicking on the page numbers should update the questions. 
     '''
   
-    # try:
     selection = Question.query.order_by(Question.id).all()
     current_questions = paginate_questions(request, selection)
     categories = {category.id: category.type for category in Category.query.all()}
@@ -96,11 +85,7 @@ def create_app(test_config=None):
       'questions': current_questions,
       'total_questions': len(Question.query.all()), 
       'categories': categories, 
-      #'current_category': None
     })
-
-    # except: 
-    #   abort(404)
 
 
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
@@ -124,7 +109,6 @@ def create_app(test_config=None):
 
       return jsonify({
         'success': True, 
-        #'deleted': question_id, 
         'questions': current_questions, 
         'total_questions': len(Question.query.all())
       })
@@ -266,19 +250,23 @@ def create_app(test_config=None):
 
     category_id = int(quiz_category['id'])
 
-    if category_id > 0: #A category has been selected
-      current_question = get_random_question_from_category(quiz_category, previous_questions)
+    try: 
+      if category_id > 0: #A category has been selected
+        current_question = get_random_question_from_category(quiz_category, previous_questions)
 
-    else: #ALL has been selected
-      current_question = get_random_question()
-      for question in previous_questions:
-        if question == current_question['id']:
-          return get_random_question()
+      else: #ALL has been selected
+        current_question = get_random_question()
+        for question in previous_questions:
+          if question == current_question['id']:
+            return get_random_question()
 
-    return jsonify({
-      'success': True,
-      'question': current_question
-    })
+      return jsonify({
+        'success': True,
+        'question': current_question
+      })
+    
+    except: 
+      abort(404)
 
 
   '''
