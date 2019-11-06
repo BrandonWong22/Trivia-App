@@ -1,0 +1,5 @@
+.vscode
+frontend/node_modules
+trivia_api.code-workspace
+*/__pycache__/
+backend/env

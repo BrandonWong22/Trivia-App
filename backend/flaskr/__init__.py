@@ -58,6 +58,16 @@ def create_app(test_config=None):
       'categories': formatted_categories,
       'total_categories': len(Category.query.all())})
 
+  # @app.route('/categories')
+  # def get_categories():
+  #   categories = Category.query.order_by(Category.id).all()
+  #   return jsonify({
+  #     'success': True,
+  #     'categories': [
+  #       category.format for category in categories
+  #     ]
+  #   })
+
   @app.route('/questions')
   def get_questions():
     '''
@@ -91,6 +101,8 @@ def create_app(test_config=None):
 
     # except: 
     #   abort(404)
+
+
 
 
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
