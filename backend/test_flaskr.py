@@ -34,8 +34,8 @@ class TriviaTestCase(unittest.TestCase):
     TODO
     Write at least one test for each test for successful operation and for expected errors.
     """
-    # TEST GET METHOD ON CATEGORIES
 
+    # TEST GET METHOD ON CATEGORIES
     def test_retrieve_categories(self):
         res = self.client().get('/categories')
         data = json.loads(res.data)
@@ -91,6 +91,7 @@ class TriviaTestCase(unittest.TestCase):
             data['total_questions'],
             total_questions_before_post + 1)
 
+    # TEST 405 ERROR ON POST QUESTIONS METHOD
     def test_405_post_questions(self):
         post_question = {
             'question': "Test Question",
@@ -106,6 +107,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'method not allowed')
 
+    # TEST SEARCH QUESTIONS METHOD
     def test_search_question(self):
         post_data = {
             'searchTerm': 'title',
@@ -129,6 +131,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['questions']), 3)
         self.assertEqual(data['total_questions'], len(Question.query.all()))
 
+    # TEST 422 INVALID SEARCH METHOD
     def test_422_search_invalid_category(self):
         res = self.client().get('/categories/1000/questions')
         data = json.loads(res.data)
@@ -137,6 +140,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data['message'], 'unprocessable')
 
+    # TEST PLAY QUIZ
     def test_post_play_quiz(self):
         post_data = {
             'previous_questions': [],
@@ -152,6 +156,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], True)
         self.assertTrue(data["question"])
 
+    # TEST 404 ERROR PLAY QUIZ
     def test_404_post_play_quiz(self):
         post_data = {
             'previous_questions': [],
